@@ -41,7 +41,7 @@ function done(argument){
     commands[nextCommand](argument,nextArg,done);
 
   } else {
-    process.stdout.write(argument + '\n');
+    console.log(argument + '\n');
     process.stdout.write('prompt > ');
   }
 

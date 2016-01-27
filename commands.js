@@ -1,5 +1,6 @@
 var fs = require('fs');
 var request = require('request');
+var chalk = require('chalk');
 
 module.exports = {
   pwd: function(stdin, argument, outputFunc) {
@@ -192,26 +193,29 @@ module.exports = {
     }
   },
   curl: function(stdin, argument, outputFunc){
-    //query http address and log out
+    //query http address
     request(argument, function (err, response, body) {
       if(err) throw err;
 
       if (!err && response.statusCode == 200) {
-          outputFunc(body + '\n'); // Show the HTML for the Modulus homepage.
+          outputFunc(body + '\n'); //return the body of the webpage
       }
     });
   },
   grep: function(stdin, argument, outputFunc){
     var lines = [];
     var result = "";
+
     if(stdin) {
+
       lines = stdin.split('\n');
 
       for(var i = 0; i < lines.length; i++){
         if(lines[i].indexOf(argument)!= -1){
-          result+=lines[i] + '\n';
-        }
 
+          var newString = lines[i].toString().replace(argument, chalk.bgWhite(argument));
+          result+=newString + '\n';
+        }
       }
     }
 
