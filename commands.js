@@ -2,33 +2,33 @@ var fs = require('fs');
 var request = require('request');
 
 module.exports = {
-  pwd: function(argument) {
+  pwd: function(argument, outputFunc) {
     //print working dir
-    process.stdout.write(process.argv[1]);
+    outputFunc(process.argv[1]);
   },
-  date: function(argument) {
+  date: function(argument, outputFunc) {
     var date = new Date();
-    process.stdout.write(date.toString());
+    outputFunc(date.toString());
   },
-  ls: function(argument){
+  ls: function(argument, outputFunc){
     fs.readdir('.', function(err, files) {
       if (err) throw err;
       files.forEach(function(file) {
-        process.stdout.write(file.toString() + "\n");
+        outputFunc(file.toString() + "\n");
       });
     });
   },
-  echo: function(argument){
-    process.stdout.write(argument);
+  echo: function(argument, outputFunc){
+    outputFunc(argument);
   },
-  cat: function(argument){
+  cat: function(argument, outputFunc){
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
-      process.stdout.write(file + "\n");
+      outputFunc(file + "\n");
     });
   },
-  head: function(argument){
+  head: function(argument, outputFunc){
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
@@ -40,11 +40,11 @@ module.exports = {
         loopLength = lines.length;
 
       for(var i = 0;i<loopLength;i++)
-        process.stdout.write(lines[i] + "\n");
+        outputFunc(lines[i] + "\n");
 
     });
   },
-  tail: function(argument){
+  tail: function(argument, outputFunc){
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
@@ -56,11 +56,11 @@ module.exports = {
         loopStart = lines.length - 5;
 
       for(var i = loopStart;i<lines.length;i++)
-        process.stdout.write(lines[i] + "\n");
+        outputFunc(lines[i] + "\n");
 
     });
   },
-  sort: function(argument){
+  sort: function(argument, outputFunc){
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
@@ -68,20 +68,20 @@ module.exports = {
 
       lines.sort();
 
-      process.stdout.write(lines.join('\n'));
+      outputFunc(lines.join('\n'));
 
     });
   },
-  wc: function(argument){
+  wc: function(argument, outputFunc){
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
       var lines = file.split('\n');
 
-      process.stdout.write(lines.length+'\n');
+      outputFunc(lines.length+'\n');
     });
   },
-  uniq: function(argument){
+  uniq: function(argument, outputFunc){
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
@@ -93,9 +93,17 @@ module.exports = {
           result.push(lines[i]);
       }
 
-      process.stdout.write(result.join('\n'));
+      outputFunc(result.join('\n'));
 
     });
   },
-  curl: 
+  curl: function(argument, outputFunc){
+    request(argument, function (err, response, body) {
+      if(err) throw err;
+
+      if (!err && response.statusCode == 200) {
+          outputFunc(body + '\n'); // Show the HTML for the Modulus homepage.
+      }
+    });
+  }
 };

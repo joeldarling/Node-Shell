@@ -11,8 +11,15 @@ process.stdin.on('data', function(data) {
   var cmd = userInput.shift(); // remove the newline
 
   if(commands.hasOwnProperty(cmd))
-    commands[cmd](userInput.join(' '));
+    commands[cmd](userInput.join(' '), done);
 
-  process.stdout.write('\nprompt > ');
+  //process.stdout.write('\nprompt > ');
 
 });
+
+function done(argument){
+
+  process.stdout.write(argument + '\n');
+  process.stdout.write('\nprompt > ');
+
+}
