@@ -2,15 +2,24 @@ var fs = require('fs');
 var request = require('request');
 
 module.exports = {
-  pwd: function(argument, outputFunc) {
+  pwd: function(stdin, argument, outputFunc) {
     //print working dir
+    if(stdin)
+      argument = stdin;
+
     outputFunc(process.argv[1]);
   },
-  date: function(argument, outputFunc) {
+  date: function(stdin, argument, outputFunc) {
+    if(stdin)
+      argument = stdin;
+
     var date = new Date();
     outputFunc(date.toString());
   },
-  ls: function(argument, outputFunc){
+  ls: function(stdin, argument, outputFunc){
+    if(stdin)
+      argument = stdin;
+
     fs.readdir('.', function(err, files) {
       if (err) throw err;
       files.forEach(function(file) {
@@ -18,33 +27,83 @@ module.exports = {
       });
     });
   },
-  echo: function(argument, outputFunc){
+  echo: function(stdin, argument, outputFunc){
+    if(stdin)
+      argument = stdin;
+
     outputFunc(argument);
   },
-  cat: function(argument, outputFunc){
+  cat: function(stdin, argument, outputFunc){
+    if(stdin)
+      argument = stdin;
+
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
       outputFunc(file + "\n");
     });
   },
-  head: function(argument, outputFunc){
+
+/*
+wc: function(stdin, argument, outputFunc){
+  var lines = [];
+  console.log('arg:',argument,' stdin:',stdin);
+  if(stdin) {
+    lines = stdin.split('\n');
+    outputFunc("Number of lines: "+lines.length+'\n');
+  } else {
+    console.log('reading');
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
-      var lines = file.split('\n');
+      lines = file.split('\n');
+      outputFunc("Number of lines: "+lines.length+'\n');
+      });
+  }
+},
+*/
 
+  head: function(stdin, argument, outputFunc){
+    var lines = [];
+    if(stdin) {
+      lines = stdin.split('\n');
       var loopLength = 5;
 
       if(lines.length<5)
         loopLength = lines.length;
+        var toReturn = "";
 
       for(var i = 0;i<loopLength;i++)
-        outputFunc(lines[i] + "\n");
+        toReturn = toReturn + lines[i] + "\n";
 
-    });
+        outputFunc(toReturn);
+
+    } else {
+      fs.readFile(argument,'utf8',function(err,file){
+        if(err) throw err;
+
+        lines = file.split('\n');
+        var loopLength = 5;
+
+        if(lines.length<5)
+          loopLength = lines.length;
+          var toReturn = "";
+
+        for(var i = 0;i<loopLength;i++)
+          toReturn = toReturn + lines[i] + "\n";
+
+          outputFunc(toReturn);
+
+        });
+    }
+
+
+
   },
-  tail: function(argument, outputFunc){
+  tail: function(stdin, argument, outputFunc){
+    if(stdin)
+      argument = stdin;
+
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
@@ -60,7 +119,10 @@ module.exports = {
 
     });
   },
-  sort: function(argument, outputFunc){
+  sort: function(stdin, argument, outputFunc){
+    if(stdin)
+      argument = stdin;
+
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
@@ -72,16 +134,26 @@ module.exports = {
 
     });
   },
-  wc: function(argument, outputFunc){
-    fs.readFile(argument,'utf8',function(err,file){
-      if(err) throw err;
+  wc: function(stdin, argument, outputFunc){
+    var lines = [];
 
-      var lines = file.split('\n');
+    if(stdin) {
+      lines = stdin.split('\n');
+      outputFunc("Number of lines: "+lines.length+'\n');
+    } else {
+      
+      fs.readFile(argument,'utf8',function(err,file){
+        if(err) throw err;
 
-      outputFunc(lines.length+'\n');
-    });
+        lines = file.split('\n');
+        outputFunc("Number of lines: "+lines.length+'\n');
+        });
+    }
   },
-  uniq: function(argument, outputFunc){
+  uniq: function(stdin, argument, outputFunc){
+    if(stdin)
+      argument = stdin;
+
     fs.readFile(argument,'utf8',function(err,file){
       if(err) throw err;
 
@@ -97,7 +169,10 @@ module.exports = {
 
     });
   },
-  curl: function(argument, outputFunc){
+  curl: function(stdin, argument, outputFunc){
+    if(stdin)
+      argument = stdin;
+
     request(argument, function (err, response, body) {
       if(err) throw err;
 
