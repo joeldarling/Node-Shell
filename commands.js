@@ -4,66 +4,45 @@ var request = require('request');
 module.exports = {
   pwd: function(stdin, argument, outputFunc) {
     //print working dir
-    if(stdin)
-      argument = stdin;
 
     outputFunc(process.argv[1]);
   },
   date: function(stdin, argument, outputFunc) {
-    if(stdin)
-      argument = stdin;
-
+    //print current date
     var date = new Date();
     outputFunc(date.toString());
   },
   ls: function(stdin, argument, outputFunc){
-    if(stdin)
-      argument = stdin;
-
+    //list files in directory
     fs.readdir('.', function(err, files) {
       if (err) throw err;
-      files.forEach(function(file) {
-        outputFunc(file.toString() + "\n");
-      });
+
+      outputFunc(files.join('\n'));
+
     });
   },
   echo: function(stdin, argument, outputFunc){
+    //echo the input
     if(stdin)
       argument = stdin;
 
     outputFunc(argument);
   },
   cat: function(stdin, argument, outputFunc){
+    //concat files
     if(stdin)
-      argument = stdin;
+      outputFunc(stdin + "\n");
+    else {
+      fs.readFile(argument,'utf8',function(err,file){
+        if(err) throw err;
 
-    fs.readFile(argument,'utf8',function(err,file){
-      if(err) throw err;
-
-      outputFunc(file + "\n");
-    });
+        outputFunc(file + "\n");
+      });
+    }
   },
 
-/*
-wc: function(stdin, argument, outputFunc){
-  var lines = [];
-  console.log('arg:',argument,' stdin:',stdin);
-  if(stdin) {
-    lines = stdin.split('\n');
-    outputFunc("Number of lines: "+lines.length+'\n');
-  } else {
-    console.log('reading');
-    fs.readFile(argument,'utf8',function(err,file){
-      if(err) throw err;
-
-      lines = file.split('\n');
-      outputFunc("Number of lines: "+lines.length+'\n');
-      });
-  }
-},
-*/
-
   head: function(stdin, argument, outputFunc){
+    //print the first 5 lines of input
     var lines = [];
     if(stdin) {
       lines = stdin.split('\n');
@@ -74,9 +53,9 @@ wc: function(stdin, argument, outputFunc){
         var toReturn = "";
 
       for(var i = 0;i<loopLength;i++)
-        toReturn = toReturn + lines[i] + "\n";
+        toReturn += "\n"+i+": "+ lines[i];
 
-        outputFunc(toReturn);
+      outputFunc(toReturn);
 
     } else {
       fs.readFile(argument,'utf8',function(err,file){
@@ -90,75 +69,102 @@ wc: function(stdin, argument, outputFunc){
           var toReturn = "";
 
         for(var i = 0;i<loopLength;i++)
-          toReturn = toReturn + lines[i] + "\n";
+          toReturn += "\n"+i+": "+ lines[i];
 
-          outputFunc(toReturn);
+        outputFunc(toReturn);
 
         });
     }
-
-
-
   },
   tail: function(stdin, argument, outputFunc){
-    if(stdin)
-      argument = stdin;
+    //print last 5 lines of input
+    var lines = [];
 
-    fs.readFile(argument,'utf8',function(err,file){
-      if(err) throw err;
+    if(stdin){
 
-      var lines = file.split('\n');
+        lines = stdin.split('\n');
 
-      var loopStart = 0;
+        var loopStart = 0;
 
-      if(lines.length>5)
-        loopStart = lines.length - 5;
+        if(lines.length>5)
+          loopStart = lines.length - 5;
 
-      for(var i = loopStart;i<lines.length;i++)
-        outputFunc(lines[i] + "\n");
+        var toReturn = "";
+        for(var i = loopStart;i<lines.length;i++){
+          toReturn+="\n"+i+": "+lines[i];
+        }
+          outputFunc(toReturn);
 
-    });
+    } else {
+      fs.readFile(argument,'utf8',function(err,file){
+        if(err) throw err;
+
+        lines = file.split('\n');
+
+        var loopStart = 0;
+
+        if(lines.length>5)
+          loopStart = lines.length - 5;
+
+        var toReturn = "";
+        for(var i = loopStart;i<lines.length;i++){
+          toReturn+="\n"+i+": "+lines[i];
+        }
+          outputFunc(toReturn);
+
+      });
+    }
   },
   sort: function(stdin, argument, outputFunc){
-    if(stdin)
-      argument = stdin;
 
-    fs.readFile(argument,'utf8',function(err,file){
-      if(err) throw err;
+    //sort input
+    if(stdin){
 
-      var lines = file.split('\n');
+      var lines = stdin.split('\n');
 
       lines.sort();
 
       outputFunc(lines.join('\n'));
 
-    });
+    } else {
+      fs.readFile(argument,'utf8',function(err,file){
+        if(err) throw err;
+
+        var lines = file.split('\n');
+
+        lines.sort();
+
+        outputFunc(lines.join('\n'));
+
+      });
+    }
   },
   wc: function(stdin, argument, outputFunc){
+    //print linecount for input
     var lines = [];
 
     if(stdin) {
       lines = stdin.split('\n');
-      outputFunc("Number of lines: "+lines.length+'\n');
+      outputFunc(lines.length+'\n');
     } else {
-      
+      if(!argument){
+        outputFunc('Not a valid file');
+        return;
+      }
+
       fs.readFile(argument,'utf8',function(err,file){
         if(err) throw err;
 
         lines = file.split('\n');
-        outputFunc("Number of lines: "+lines.length+'\n');
+        outputFunc(lines.length+'\n');
         });
     }
   },
   uniq: function(stdin, argument, outputFunc){
-    if(stdin)
-      argument = stdin;
-
-    fs.readFile(argument,'utf8',function(err,file){
-      if(err) throw err;
-
+    //strip out any duplicate lines
+    if(stdin){
       var result = [];
-      var lines = file.split('\n');
+      var lines = stdin.split('\n');
 
       for(var i = 0;i < lines.length; i ++){
         if(result.indexOf(lines[i]) === -1)
@@ -167,12 +173,26 @@ wc: function(stdin, argument, outputFunc){
 
       outputFunc(result.join('\n'));
 
-    });
+    } else {
+
+      fs.readFile(argument,'utf8',function(err,file){
+        if(err) throw err;
+
+        var result = [];
+        var lines = file.split('\n');
+
+        for(var i = 0;i < lines.length; i ++){
+          if(result.indexOf(lines[i]) === -1)
+            result.push(lines[i]);
+        }
+
+        outputFunc(result.join('\n'));
+
+      });
+    }
   },
   curl: function(stdin, argument, outputFunc){
-    if(stdin)
-      argument = stdin;
-
+    //query http address and log out 
     request(argument, function (err, response, body) {
       if(err) throw err;
 
