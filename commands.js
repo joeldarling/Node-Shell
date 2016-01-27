@@ -192,7 +192,7 @@ module.exports = {
     }
   },
   curl: function(stdin, argument, outputFunc){
-    //query http address and log out 
+    //query http address and log out
     request(argument, function (err, response, body) {
       if(err) throw err;
 
@@ -200,5 +200,22 @@ module.exports = {
           outputFunc(body + '\n'); // Show the HTML for the Modulus homepage.
       }
     });
+  },
+  grep: function(stdin, argument, outputFunc){
+    var lines = [];
+    var result = "";
+    if(stdin) {
+      lines = stdin.split('\n');
+
+      for(var i = 0; i < lines.length; i++){
+        if(lines[i].indexOf(argument)!= -1){
+          result+=lines[i] + '\n';
+        }
+
+      }
+    }
+
+    outputFunc(result);
+
   }
 };

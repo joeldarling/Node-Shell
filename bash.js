@@ -29,7 +29,16 @@ function done(argument){
 
   if(cmdList.length > 0){
     var nextCmd = cmdList.shift();
-    commands[nextCmd](argument,null,done);
+    var newCmdArg = nextCmd.split(' ');
+
+    var nextCommand = newCmdArg.shift();
+    var nextArg = null;
+
+    if(newCmdArg.length!==0)
+      nextArg = newCmdArg.join(' ');
+
+
+    commands[nextCommand](argument,nextArg,done);
 
   } else {
     process.stdout.write(argument + '\n');
