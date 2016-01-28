@@ -12,6 +12,7 @@ module.exports = {
     //print current date
     var date = new Date();
     outputFunc(date.toString());
+
   },
   ls: function(stdin, argument, outputFunc){
     //list files in directory
@@ -43,100 +44,52 @@ module.exports = {
   },
 
   head: function(stdin, argument, outputFunc){
+
+    function process(data){
+      //this will return the first 5 lines of file
+      return data.split('\n').slice(0,5).join('\n');
+    }
     //print the first 5 lines of input
-    var lines = [];
-    if(stdin) {
-      lines = stdin.split('\n');
-      var loopLength = 5;
-
-      if(lines.length<5)
-        loopLength = lines.length;
-        var toReturn = "";
-
-      for(var i = 0;i<loopLength;i++)
-        toReturn += "\n"+i+": "+ lines[i];
-
-      outputFunc(toReturn);
-
+    if(stdin){
+      outputFunc(process(stdin));
     } else {
       fs.readFile(argument,'utf8',function(err,file){
-        if(err) throw err;
-
-        lines = file.split('\n');
-        var loopLength = 5;
-
-        if(lines.length<5)
-          loopLength = lines.length;
-          var toReturn = "";
-
-        for(var i = 0;i<loopLength;i++)
-          toReturn += "\n"+i+": "+ lines[i];
-
-        outputFunc(toReturn);
-
+        if(!err)
+          outputFunc(process(file));
         });
     }
   },
   tail: function(stdin, argument, outputFunc){
+
+    function process(data){
+      return data.split('\n').slice(-5).join('\n');
+    }
     //print last 5 lines of input
     var lines = [];
 
     if(stdin){
-
-        lines = stdin.split('\n');
-
-        var loopStart = 0;
-
-        if(lines.length>5)
-          loopStart = lines.length - 5;
-
-        var toReturn = "";
-        for(var i = loopStart;i<lines.length;i++){
-          toReturn+="\n"+i+": "+lines[i];
-        }
-          outputFunc(toReturn);
+      outputFunc(process(stdin));
 
     } else {
       fs.readFile(argument,'utf8',function(err,file){
-        if(err) throw err;
-
-        lines = file.split('\n');
-
-        var loopStart = 0;
-
-        if(lines.length>5)
-          loopStart = lines.length - 5;
-
-        var toReturn = "";
-        for(var i = loopStart;i<lines.length;i++){
-          toReturn+="\n"+i+": "+lines[i];
-        }
-          outputFunc(toReturn);
-
+        if(!err)
+          outputFunc(process(file));
       });
     }
   },
   sort: function(stdin, argument, outputFunc){
 
+    function process(data){
+      return data.split('\n').sort().join('\n');
+    }
+
     //sort input
     if(stdin){
-
-      var lines = stdin.split('\n');
-
-      lines.sort();
-
-      outputFunc(lines.join('\n'));
-
+      outputFunc(process(stdin));
     } else {
       fs.readFile(argument,'utf8',function(err,file){
-        if(err) throw err;
-
-        var lines = file.split('\n');
-
-        lines.sort();
-
-        outputFunc(lines.join('\n'));
-
+        if(!err)
+          outputFunc(process(file));
       });
     }
   },
